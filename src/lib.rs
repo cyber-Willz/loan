@@ -14,7 +14,7 @@ use axum::{
     extract:: Extension,
 };
 
-
+use std::sync::Arc;
 #[derive(Debug,Clone)]
 pub struct State{
    pub  db :DatabaseConnection
@@ -28,11 +28,12 @@ pub async fn run(){
         Ok(db) => db,
           Err(err) => panic!("{}", err),
       };
- let state  =State{db:db};
- println!("{:?}",state.db);
+      
+    let state = Arc::new(State{db:db});
+ 
         // build our application with a single route
         let app = routes(Extension(state)).await;    
         // run our app with hyper, listening globally on port 3000
-        let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
+        let listener = tokio::net::TcpListener::bind(PORT).await.unwrap();
         axum::serve(listener, app).await.unwrap();
 }
