@@ -14,6 +14,7 @@ use axum::response:: IntoResponse;
 use std::sync::Arc;
 #[derive(Deserialize,Serialize, Debug)]
 struct Payment{
+pub payment_id: i32,
 pub transaction_id: i32,    
 pub payment_date: NaiveDateTime,
 pub payment_amount :f32
@@ -42,6 +43,7 @@ let  rust_payment: Vec<Payment> = payments.into_iter().map(|b|
 
 {
 Payment{
+payment_id: b.payment_id,
 transaction_id: b.transaction_id,    
 payment_date: b.payment_date,
 payment_amount :b. payment_amount
