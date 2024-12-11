@@ -15,8 +15,9 @@ pub async fn avaliable_loans(Extension(state): Extension<Arc<State>>)->Json<Vec<
 let state=state.db.clone();
 let db = &state as &DatabaseConnection;
 
-    //  let res: Vec<Value> = LoanProduct::find().into_json().all(db).await.unwrap();
+
 let loans:Result<Vec<JsonValue>, StatusCode> = LoanProducts::find()
+
 .from_raw_sql(Statement::from_sql_and_values(
    
     DbBackend::MySql,
@@ -24,6 +25,7 @@ let loans:Result<Vec<JsonValue>, StatusCode> = LoanProducts::find()
     [],
 
 ))
+
 .into_json()
 .all(db)
 .await.map_err(|err| StatusCode::INTERNAL_SERVER_ERROR);
@@ -31,7 +33,9 @@ let loans:Result<Vec<JsonValue>, StatusCode> = LoanProducts::find()
 if let Ok(loans)=loans{
     Json(loans)
 
-}else if let Err(_err) =loans{
+}
+
+else if let Err(_err) =loans{
 
 let mut  vec =Vec::new();
 
@@ -41,7 +45,9 @@ let res =serde_json::json!({
 
 Json(vec)
 
-}else{
+}
+
+else{
 
     
 let mut  new_err =Vec::new();
@@ -54,5 +60,5 @@ Json(new_err)
 
 }
 
-    //   Json(loans)
+
 }
