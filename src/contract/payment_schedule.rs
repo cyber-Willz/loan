@@ -96,6 +96,7 @@ pub struct Ledger {
        }
 
        pub fn complete_schedule(&self)-> Value {
+        
         let gen_schedule =self.generate_schedule();
         let total_paid =self.total_paid();
         let outstanding_balance  = self.outstanding_balance();
