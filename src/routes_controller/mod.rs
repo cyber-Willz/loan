@@ -12,6 +12,8 @@ mod all_lenders;
 mod all_payments;
 mod all_loan_requests;
 mod all_loan_transactions;
+mod generate_loan_schedules;
+use generate_loan_schedules::generate_loan_schedules;
 use all_loan_transactions::all_loan_transactions;
 use all_loan_requests::all_loan_requests;
 use all_payments::all_payments;
@@ -33,6 +35,7 @@ Router::new()
 .route("/loan_requests", get(all_loan_requests))
 .route("/loan_transactions", get(all_loan_transactions))
 .route("/payments", get(all_payments))
+.route("/loan_amortization_payments", get(generate_loan_schedules))
 .layer(Extension(state))
   
 }
