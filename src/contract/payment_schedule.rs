@@ -3,6 +3,7 @@
 use chrono::{NaiveDateTime,Duration}; // For date handling
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::sync::Arc;
 
 #[derive(Deserialize,Serialize, Debug,Clone)]
 pub struct Payment {
@@ -24,12 +25,12 @@ pub  payments: Vec<Payment>,
 }
 
 pub struct Ledger {
-    pub    loans: Vec<Loan>,
+    pub    loans: Arc<Vec<Loan>>,
       
     }
    
     impl Ledger {
-       pub  fn new(loans: Vec<Loan>) -> Self {
+       pub  fn new(loans: Arc<Vec<Loan>>) -> Self {
             Self {
                 loans: loans,
                
@@ -65,8 +66,6 @@ pub struct Ledger {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
            let total_paid = self.total_paid();
-           println!("{:?}",loan.clone());
-           println!("{:?}",total_paid);
            let total_due = self.monthly_payment() * loan.number_of_months;
            total_due - total_paid
        }

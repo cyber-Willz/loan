@@ -1,9 +1,9 @@
 
-use sea_orm::*;
-use axum::{extract::{Json,Extension},http:: StatusCode,};
-use crate::{entities::prelude::LenderLoanProductLedger, loan_products};
+
+use axum::{extract::{Json,Extension,Path},http:: StatusCode,};
+use crate::{entities::prelude::LenderLoanProductLedger};
 use serde_json::Value;
-use chrono::{NaiveDateTime,Duration,NaiveTime,NaiveDate,DateTime};
+use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
 use crate::loan_products::Model;
 use serde::{Deserialize, Serialize};
 use crate::State;
@@ -25,7 +25,9 @@ pub struct LoanProductLedger {
 }
 
 
-pub async fn generate_loan_schedules(Extension(state): Extension<Arc<State>>)->impl IntoResponse{
+pub async fn generate_loan_schedules(Extension(state): Extension<Arc<State>>,Path(product_id): Path<u32>)->impl IntoResponse{
+
+let product_id  =product_id as i32;
 
 let state=state.db.clone();
 let db = &state as &DatabaseConnection;
@@ -45,12 +47,12 @@ let t: NaiveTime = NaiveTime::from_hms_milli_opt(00, 00, 00, 00).unwrap();
 let err_datetime = NaiveDateTime::new(d, t);
 
 if let Ok(loan_ledger) =loan_product_ledger{
-    println!("{:?}",loan_ledger.clone());
+ 
 let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b| 
 
     {
 
-        if b.product_id.clone() == 6 {
+        if b.product_id == product_id {
 
             Payment {
 
@@ -74,6 +76,8 @@ let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b|
 
 for elem in loan_ledger_payments.into_iter() {
 payments.push(elem)
+
+
 }
 }
 
@@ -88,7 +92,7 @@ let start_datetime = NaiveDateTime::new(d, t);
 let mut res_loan_product: Vec<Model>  =vec![];
 
 let loan_product:Result<Option<Model>, StatusCode> = LoanProducts::
-find_by_id(6).one(db)
+find_by_id(product_id).one(db)
 .await.map_err(|err|{StatusCode::INTERNAL_SERVER_ERROR});
 
 
@@ -114,9 +118,9 @@ let  loan_product_info: Vec<Loan> = res_loan_product.into_iter().map(|b|
             }
 }).collect();
 
+let new_loan_info =Arc::new(loan_product_info);
 
-
-let ledger  =Ledger::new(loan_product_info);
+let ledger  =Ledger::new(new_loan_info);
 
 let  gen =ledger.complete_schedule();
 
