@@ -42,7 +42,7 @@ Router::new()
 .route("/payments", get(all_payments))
 .route("/loan_amortization_payments", get(generate_loan_schedules))
 .route("/submit_loan", post(submit_loan))
-.route("/update_loan", put(submit_loan))
+.route("/update_loan", put(update_loan))
 .layer(Extension(state))
   
 }
