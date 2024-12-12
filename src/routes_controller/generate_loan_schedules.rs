@@ -118,11 +118,11 @@ let  loan_product_info: Vec<Loan> = res_loan_product.into_iter().map(|b|
             }
 }).collect();
 
-let new_loan_info =Arc::new(loan_product_info);
+let new_loan_info: Arc<Vec<Loan>> =Arc::new(loan_product_info);
 
 let ledger  =Ledger::new(new_loan_info);
 
-let  gen =ledger.complete_schedule();
+let  gen =ledger.await.complete_schedule().await;
 
 
 let mut  vec =Vec::new();

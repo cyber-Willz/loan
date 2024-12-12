@@ -30,7 +30,7 @@ pub struct Ledger {
     }
    
     impl Ledger {
-       pub  fn new(loans: Arc<Vec<Loan>>) -> Self {
+       pub  async  fn new(loans: Arc<Vec<Loan>>) -> Self {
             Self {
                 loans: loans,
                
@@ -38,14 +38,14 @@ pub struct Ledger {
         }
     
    
-        pub  fn total_paid(&self) -> f32 {
+        pub async fn total_paid(&self) -> f32 {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
            let new  = loan.payments.iter().map(|p| p.payment_amount).sum();
            new 
        }
    
-       pub fn monthly_payment(&self) -> f32 {
+       pub async fn monthly_payment(&self) -> f32 {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
            let r = loan.interest_rate / 12.0 / 100.0; // Monthly interest rate
@@ -62,20 +62,20 @@ pub struct Ledger {
        }
    
    
-       pub fn outstanding_balance(&self) -> f32 {
+       pub async fn outstanding_balance(&self) -> f32 {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
-           let total_paid = self.total_paid();
-           let total_due = self.monthly_payment() * loan.number_of_months;
+           let total_paid = self.total_paid().await;
+           let total_due = self.monthly_payment().await * loan.number_of_months;
            total_due - total_paid
        }
    
-       pub fn generate_schedule(&self) -> Vec<Value> {
+       pub async fn generate_schedule(&self) -> Vec<Value> {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
            let mut schedule = Vec::new();
            let mut balance = loan.loan_amount;
-           let monthly_payment = self.monthly_payment();
+           let monthly_payment = self.monthly_payment().await;
            let rate = loan.interest_rate / 12.0 / 100.0;
    
            for i in 0..loan.number_of_months  as u32 {
@@ -96,11 +96,11 @@ pub struct Ledger {
            schedule
        }
 
-       pub fn complete_schedule(&self)-> Value {
+       pub async fn complete_schedule(&self)-> Value {
         
-        let gen_schedule =self.generate_schedule();
-        let total_paid =self.total_paid();
-        let outstanding_balance  = self.outstanding_balance();
+        let gen_schedule =self.generate_schedule().await;
+        let total_paid =self.total_paid().await;
+        let outstanding_balance  = self.outstanding_balance().await;
 
         serde_json::json!({
             "total paid":total_paid,
