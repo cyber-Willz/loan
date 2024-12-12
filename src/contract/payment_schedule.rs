@@ -65,6 +65,8 @@ pub struct Ledger {
            let ans  = self.loans.clone();
            let loan =ans[0].clone();
            let total_paid = self.total_paid();
+           println!("{:?}",loan.clone());
+           println!("{:?}",total_paid);
            let total_due = self.monthly_payment() * loan.number_of_months;
            total_due - total_paid
        }

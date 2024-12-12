@@ -34,29 +34,41 @@ let db = &state as &DatabaseConnection;
 let mut payments=Vec::new();
 
 
-let loan_product_ledger= LenderLoanProductLedger::find()
-
-.from_raw_sql(Statement::from_sql_and_values(
-
-DbBackend::MySql,
-r#"SELECT * FROM loan_system.LenderLoanProductLedger"#,
-[],
-
-))
+let loan_product_ledger=LenderLoanProductLedger::find()
 .all(db)
 .await.map_err(|err|{StatusCode::INTERNAL_SERVER_ERROR});
 
 
+
+let d = NaiveDate::from_ymd_opt(2011, 09, 11).unwrap();
+let t: NaiveTime = NaiveTime::from_hms_milli_opt(00, 00, 00, 00).unwrap();
+let err_datetime = NaiveDateTime::new(d, t);
+
 if let Ok(loan_ledger) =loan_product_ledger{
+    println!("{:?}",loan_ledger.clone());
 let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b| 
 
     {
-             Payment {
+
+        if b.product_id.clone() == 6 {
+
+            Payment {
 
                 product_ledger_id: b.product_ledger_id,    
                 payment_date: b.payment_date,
                 payment_amount :b.payment_amount
                 }
+                    
+        }
+        else{
+
+            Payment {
+                product_ledger_id: b.product_ledger_id,    
+                payment_date: err_datetime,
+                payment_amount :0.0
+                }
+        }
+            
             
     }).collect();
 
@@ -76,7 +88,7 @@ let start_datetime = NaiveDateTime::new(d, t);
 let mut res_loan_product: Vec<Model>  =vec![];
 
 let loan_product:Result<Option<Model>, StatusCode> = LoanProducts::
-find_by_id(1).one(db)
+find_by_id(6).one(db)
 .await.map_err(|err|{StatusCode::INTERNAL_SERVER_ERROR});
 
 
