@@ -13,7 +13,6 @@ use axum:: extract;
 
 use serde::Deserialize;
 use serde_derive::Serialize;
-// use std::str::FromStr;
 use::std::sync::Arc;
 
 
@@ -34,17 +33,19 @@ pub struct NewLoanProduct{
 
 
 #[derive(Deserialize,Debug)]
-
-    pub struct CreateLoanProduct{
-        pub lender_id :i32,
-        pub product_name:String, 
-        pub original_loan_amount:f32,
-        pub loan_amount:f32,
-        pub number_of_months:f32,
-        pub interest_rate:f32, 
-        pub  product_description:String
+pub struct CreateLoanProduct{
+    pub lender_id :i32,
+    pub product_name:String, 
+    pub original_loan_amount:f32,
+    pub loan_amount:f32,
+    pub number_of_months:f32,
+    pub interest_rate:f32, 
+    pub  product_description:String
     }
+
+
 pub async fn submit_loan(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<CreateLoanProduct>)-> Json<Value>{
+
     let state=state.db.clone();
     let db = &state as &DatabaseConnection;
 
