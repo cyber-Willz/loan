@@ -4,8 +4,6 @@ use axum::http::StatusCode;
 use crate::State;
 use sea_orm::*;
 use sea_orm::DatabaseConnection;  
-// use serde_json::Value;
-//serde_json::Value>
 use crate::entities::loan_products;
 use std::sync::Arc;
 
@@ -21,7 +19,7 @@ product_id: ActiveValue::Set(product_id), // The primary key must be set
 ..Default::default()
 
     };
-    
+
 
 let res = delete_loan.delete(db).await;
     

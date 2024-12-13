@@ -1,6 +1,7 @@
 use axum::{
-    http:: StatusCode,
-    extract:: {Extension,Json},
+    
+http:: StatusCode,
+extract:: {Extension,Json},
   
 };
 use crate::entities::prelude::LoanRequests;

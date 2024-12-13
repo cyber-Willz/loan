@@ -1,7 +1,7 @@
 
-
 use axum::{extract::{Json,Extension,Path},http:: StatusCode,};
-use crate::{entities::prelude::LenderLoanProductLedger};
+use axum::extract;
+use crate::{entities::prelude::BorrowerPaymentLedger};
 use serde_json::Value;
 use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
 use crate::loan_products::Model;
@@ -13,21 +13,24 @@ use std::sync::Arc;
 
 use crate::entities::prelude::LoanProducts;
 use sea_orm::EntityTrait;
-use crate::contract::payment_schedule::{Loan,Payment,Ledger};
+use crate::contract::borrower_schedule::{Loan,Payment,Ledger};
 
 
 #[derive(Deserialize,Serialize, Debug)]
-pub struct LoanProductLedger {
-    pub product_ledger_id: i32,
-    pub product_id: i32,
-    pub payment_date: NaiveDateTime,
-    pub payment_amount: f32,
+pub struct BorrowerInsert {
+   pub  borrower_id: i32,
+   pub  product_id: i32,
 }
 
+pub async fn borrower_loan_schedule(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<BorrowerInsert>)->impl IntoResponse{
 
-pub async fn generate_loan_schedules(Extension(state): Extension<Arc<State>>,Path(product_id): Path<u32>)->impl IntoResponse{
+let borrower_index = BorrowerInsert{ borrower_id:payload.borrower_id, product_id:payload.product_id };
 
-let product_id  =product_id as i32;
+    // You do not need a match block to destructure structs:
+let BorrowerInsert{  borrower_id ,product_id } = borrower_index;   
+let borrower_id  = borrower_id;
+
+
 
 let state=state.db.clone();
 let db = &state as &DatabaseConnection;
@@ -36,7 +39,7 @@ let db = &state as &DatabaseConnection;
 let mut payments=Vec::new();
 
 
-let loan_product_ledger=LenderLoanProductLedger::find()
+let borrower_loan_ledger=BorrowerPaymentLedger::find()
 .all(db)
 .await.map_err(|err|{StatusCode::INTERNAL_SERVER_ERROR});
 
@@ -46,17 +49,17 @@ let d = NaiveDate::from_ymd_opt(2011, 09, 11).unwrap();
 let t: NaiveTime = NaiveTime::from_hms_milli_opt(00, 00, 00, 00).unwrap();
 let err_datetime = NaiveDateTime::new(d, t);
 
-if let Ok(loan_ledger) =loan_product_ledger{
+if let Ok(loan_ledger) =borrower_loan_ledger{
  
 let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b| 
 
     {
 
-        if b.product_id == product_id {
+        if b.borrower_id == borrower_id {
 
             Payment {
 
-                product_ledger_id: b.product_ledger_id,    
+                ledger_id: b.ledger_id,    
                 payment_date: b.payment_date,
                 payment_amount :b.payment_amount
                 }
@@ -65,7 +68,7 @@ let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b|
         else{
 
             Payment {
-                product_ledger_id: b.product_ledger_id,    
+                ledger_id: b.ledger_id,    
                 payment_date: err_datetime,
                 payment_amount :0.0
                 }
@@ -88,6 +91,7 @@ let t: NaiveTime = NaiveTime::from_hms_milli_opt(00, 00, 00, 00).unwrap();
 let start_datetime = NaiveDateTime::new(d, t);
 
 
+let product_id  = product_id;
 
 let mut res_loan_product: Vec<Model>  =vec![];
 

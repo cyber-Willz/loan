@@ -9,6 +9,7 @@ pub struct Model {
     pub ledger_id: i32,
     pub borrower_id: i32,
     pub transaction_id: i32,
+    pub product_id: i32,
     pub payment_date: DateTime,
     #[sea_orm(column_type = "Float")]
     pub payment_amount: f32,
@@ -25,6 +26,14 @@ pub enum Relation {
     )]
     Borrowers,
     #[sea_orm(
+        belongs_to = "super::loan_products::Entity",
+        from = "Column::ProductId",
+        to = "super::loan_products::Column::ProductId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    LoanProducts,
+    #[sea_orm(
         belongs_to = "super::loan_transactions::Entity",
         from = "Column::TransactionId",
         to = "super::loan_transactions::Column::TransactionId",
@@ -37,6 +46,12 @@ pub enum Relation {
 impl Related<super::borrowers::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Borrowers.def()
+    }
+}
+
+impl Related<super::loan_products::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::LoanProducts.def()
     }
 }
 

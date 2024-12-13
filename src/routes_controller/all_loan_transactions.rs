@@ -1,8 +1,10 @@
 use axum::{
-    http:: StatusCode,
-    extract:: {Extension,Json},
+
+http:: StatusCode,
+extract:: {Extension,Json},
   
 };
+
 use crate::entities::prelude::LoanTransactions;
 use sea_orm::EntityTrait;
 use std::sync::Arc;
