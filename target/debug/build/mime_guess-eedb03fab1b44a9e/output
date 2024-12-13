@@ -1,1 +1,0 @@
-cargo:rustc-env=MIME_TYPES_GENERATED_PATH=C:\Users\deand\Desktop\rust_language\rust_axum_loan_system\target\debug\build\mime_guess-eedb03fab1b44a9e\out\mime_types_generated.rs
