@@ -1,6 +1,6 @@
 use axum::{
     extract:: Extension,
-    routing::{get,post,put},
+    routing::{get,post,put,delete},
     Router,
 };
 
@@ -15,7 +15,9 @@ mod generate_loan_schedules;
 mod submit_loan;
 mod update_loan;
 mod find_loan_by_id;
+mod delete_loan;
 
+use delete_loan::delete_loan;
 use find_loan_by_id::find_loan_by_id;
 use update_loan::update_loan;
 use submit_loan::submit_loan;
@@ -48,6 +50,7 @@ Router::new()
 .route("/loan_amortization_payments/:product_id", get(generate_loan_schedules))
 .route("/submit_loan", post(submit_loan))
 .route("/update_loan", put(update_loan))
+.route("/delete_loan", put(delete_loan))
 .layer(Extension(state))
   
 }
