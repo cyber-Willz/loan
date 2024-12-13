@@ -14,7 +14,9 @@ mod all_loan_transactions;
 mod generate_loan_schedules;
 mod submit_loan;
 mod update_loan;
+mod find_loan_by_id;
 
+use find_loan_by_id::find_loan_by_id;
 use update_loan::update_loan;
 use submit_loan::submit_loan;
 use generate_loan_schedules::generate_loan_schedules;
@@ -30,10 +32,14 @@ use crate::State;
 use std::sync::Arc;
 
 pub async fn routes(Extension(state): Extension<Arc<State>>)->Router{
+
+
 Router::new()
 
 .route("/", get(home_page))
 .route("/loans", get(avaliable_loans))
+
+.route("/find_loan_by_id/:product_id", get(find_loan_by_id))
 .route("/lenders", get(all_lenders))
 .route("/borrowers", get(all_borrowers))
 .route("/loan_requests", get(all_loan_requests))
