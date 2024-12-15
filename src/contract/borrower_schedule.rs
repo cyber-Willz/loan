@@ -11,6 +11,7 @@ pub struct Payment {
 pub ledger_id: i32,    
 pub payment_date: NaiveDateTime,
 pub payment_amount :f32
+
 }
 
 #[derive(Deserialize,Serialize, Debug,Clone)]
@@ -20,9 +21,14 @@ pub  product_name: String,
 pub  loan_amount: f32,
 pub  interest_rate: f32,
 pub  number_of_months: f32,
+pub  monthly_payment: f32,
+pub  total_interest : f32,
+pub total_principal_interest:f32,
 pub  start_date: NaiveDateTime,
 pub  payments: Vec<Payment>,
 }
+
+
 
 pub struct Ledger {
 
@@ -40,11 +46,30 @@ Self {
      }
 }
 
-pub async fn loan_amount(&self) -> f32 {
+
+pub async fn loan_principal(&self) -> f32 {
 
     let ans  = self.loans.clone();
     let loan =ans[0].clone();
     let new = loan.loan_amount;
+    new
+    
+    }
+
+pub async fn total_interest(&self) -> f32 {
+
+        let ans  = self.loans.clone();
+        let loan =ans[0].clone();
+        let new = loan.total_interest;
+        new
+        
+        }    
+
+pub async fn total_principal_interest(&self) -> f32 {
+
+    let ans  = self.loans.clone();
+    let loan =ans[0].clone();
+    let new = loan.total_principal_interest;
     new
     
     }
@@ -59,33 +84,13 @@ new
 
 }
    
-pub async fn monthly_payment(&self) -> f32 {
-
-let ans  = self.loans.clone();
-let loan =ans[0].clone();
-let r = loan.interest_rate / 12.0 / 100.0; // Monthly interest rate
-let n = loan.number_of_months ; // Number of payments
-let p = loan.loan_amount;
-
-   
-if r == 0.0 {
-
-return p / n; // No interest
-
-}
-   
-let factor = (1.0 + r).powf(n);
-           (p * r* factor) / (factor - 1.0)
-          
-}
-   
    
 pub async fn outstanding_balance(&self) -> f32 {
 
 let ans  = self.loans.clone();
 let loan =ans[0].clone();
 let total_paid = self.total_paid().await;
-let total_due = self.monthly_payment().await * loan.number_of_months;
+let total_due = loan.monthly_payment * loan.number_of_months;
 total_due - total_paid
 
 }
@@ -97,8 +102,8 @@ let ans  = self.loans.clone();
 let loan =ans[0].clone();
 let mut schedule = Vec::new();
 let mut balance = loan.loan_amount;
-let monthly_payment = self.monthly_payment().await;
-let rate = loan.interest_rate / 12.0 / 100.0;
+let monthly_payment = loan.monthly_payment;
+let rate = 10.1 / 12.0 / 100.0;
 
    
 for i in 0..loan.number_of_months  as u32 {
@@ -122,14 +127,17 @@ schedule
 }
 
 pub async fn complete_schedule(&self)-> Value {
-
-let loan_amount =self.loan_amount().await;
+let principal=self. loan_principal().await;
+let total_interest=self.total_interest().await;
+let total_principal_interest =self.total_principal_interest().await;
 let gen_schedule =self.generate_schedule().await;
 let total_paid =self.total_paid().await;
 let outstanding_debt  = self.outstanding_balance().await;
 
 serde_json::json!({
-"Total Principal & Interest" : loan_amount,
+"principal":principal,
+"total_interest":total_interest,
+"total_principal_interest" : total_principal_interest,
 "total_paid":total_paid,
 "outstanding_debt":outstanding_debt,
 "schedule":gen_schedule,

@@ -116,6 +116,9 @@ let  loan_product_info: Vec<Loan> = res_loan_product.into_iter().map(|b|
             loan_amount: b.loan_amount,
             interest_rate: b.interest_rate,
             number_of_months: b.number_of_months,
+            monthly_payment: b.monthly_payment,
+            total_interest : b.total_interest,
+            total_principal_interest: b.total_principal_interest,
             start_date: start_datetime ,
             payments: payments.clone(),
 
