@@ -22,7 +22,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
     let r:f32 = (r_p+ 1.0)/(12.0*100.0);
     
-
+    let delta_rate:f32 = r_p+1.0;
     
     //Calculating Equated Monthly Installment(EMI)
     
@@ -54,7 +54,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
     
   
          let number_of_months =n;
-         let interest_rate =r_p;
+         let interest_rate =delta_rate;
          let monthly_payment =emi;
           let total_interest  =total_p_interest;
          let total_principal_interest =total_amount;
@@ -80,7 +80,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
     let r:f32 = (r_p+1.0)/(12.0*100.0);
     
-
+    let delta_rate:f32 = r_p+1.0;
     
     //Calculating Equated Monthly Installment (EMI)
     
@@ -97,7 +97,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
        
      
             let number_of_months =n;
-            let interest_rate =r_p;
+            let interest_rate =delta_rate;
             let monthly_payment =emi;
              let total_interest  =total_p_interest;
             let total_principal_interest =total_amount;
@@ -125,7 +125,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    let r:f32= (r_p+1.0)/(12.0*100.0);
    
-   
+   let delta_rate:f32 = r_p+1.0;
    //Calculating Equated Monthly Installment (EMI)
    
    let emi: f32 = loan_amount*r/(1.0-(r+1.0).powf(-n));
@@ -138,7 +138,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
       
     
            let number_of_months =n;
-           let interest_rate =r_p;
+           let interest_rate =delta_rate;
            let monthly_payment =emi;
             let total_interest  =total_p_interest;
            let total_principal_interest =total_amount;
@@ -167,7 +167,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    let r: f32 = (r_p+1.25)/(12.0*100.0);
    
-
+   let delta_rate:f32 = r_p+1.25;
    
 
    
@@ -181,7 +181,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
          
        
               let number_of_months =n;
-              let interest_rate =r_p;
+              let interest_rate =delta_rate;
               let monthly_payment =emi;
                let total_interest  =total_p_interest;
               let total_principal_interest =total_amount;
@@ -199,6 +199,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
    
        let r_p: f32= interest_rate;
 
+       
        let n: f32=number_of_months;
 
     
@@ -210,7 +211,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    let r: f32 = (r_p+1.25)/(12.0*100.0);
    
-   
+   let delta_rate:f32 = r_p+1.25;
    //Calculating Equated Monthly Installment (EMI)
    
    let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
@@ -223,7 +224,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
             
           
                  let number_of_months =n;
-                 let interest_rate =r_p;
+                 let interest_rate =delta_rate;
                  let monthly_payment =emi;
                   let total_interest  =total_p_interest;
                  let total_principal_interest =total_amount;
@@ -252,7 +253,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    let r: f32 = (r_p+1.25)/(12.0*100.0);
    
-
+   let delta_rate:f32 = r_p+1.25;
    
    //Calculating Equated Monthly Installment (EMI)
    
@@ -263,7 +264,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
         let total_amount =emi*n ; 
         let total_p_interest = emi*n-loan_amount;
          let number_of_months =n;
-         let interest_rate =r_p;
+         let interest_rate =delta_rate;
          let monthly_payment =emi;
           let total_interest  =total_p_interest;
          let total_principal_interest =total_amount;
@@ -292,7 +293,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
     
  
     let r: f32 = (r_p+3.0)/(12.0*100.0);
-    
+    let delta_rate:f32 = r_p+3.0;
     //Calculating Equated Monthly Installment (EMI)
     
     let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
@@ -302,7 +303,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
             let total_amount =emi*n ; 
             let total_p_interest = emi*n-loan_amount;
              let number_of_months =n;
-             let interest_rate =r_p;
+             let interest_rate =delta_rate;
              let monthly_payment =emi;
               let total_interest  =total_p_interest;
              let total_principal_interest =total_amount;
@@ -334,6 +335,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
   let r: f32= (r_p+3.5)/(12.0*100.0);
   
+  let delta_rate:f32 = r_p+3.5;
   //Calculating Equated Monthly Installment (EMI)
   
   let emi: f32 = loan_amount*r/(1.0-(r+1.0).powf(-n)); 
@@ -343,7 +345,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
           let total_amount =emi*n ; 
           let total_p_interest = emi*n-loan_amount;
            let number_of_months =n;
-           let interest_rate =r_p;
+           let interest_rate =delta_rate;
            let monthly_payment =emi;
             let total_interest  =total_p_interest;
            let total_principal_interest =total_amount;

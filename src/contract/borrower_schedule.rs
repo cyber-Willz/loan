@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
 
+
 #[derive(Deserialize,Serialize, Debug,Clone)]
 pub struct Payment {
 
@@ -103,7 +104,8 @@ let loan =ans[0].clone();
 let mut schedule = Vec::new();
 let mut balance = loan.loan_amount;
 let monthly_payment = loan.monthly_payment;
-let rate = 10.1 / 12.0 / 100.0;
+println!("{:?}",loan.interest_rate);
+let rate = loan.interest_rate / 12.0 / 100.0;
 
    
 for i in 0..loan.number_of_months  as u32 {

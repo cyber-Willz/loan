@@ -4,6 +4,7 @@ use chrono::{NaiveDateTime,Duration}; // For date handling
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
+use crate::contract::change_in_interest_rates::change_in_interest_rates;
 
 #[derive(Deserialize,Serialize, Debug,Clone)]
 pub struct Payment {
@@ -39,6 +40,8 @@ Self {
                
      }
 }
+
+
     
    
 pub async fn total_gain(&self) -> f32 {
@@ -49,12 +52,15 @@ let new  = loan.payments.iter().map(|p| p.payment_amount).sum();
 new
 
 }
+
+
    
 pub async fn monthly_payment(&self) -> f32 {
 
 let ans  = self.loans.clone();
 let loan =ans[0].clone();
-let r = loan.interest_rate / 12.0 / 100.0; // Monthly interest rate
+let delta_interest_rate = change_in_interest_rates(loan.loan_amount, loan.interest_rate).await;
+let r = delta_interest_rate.interest_rate / 12.0 / 100.0; // Monthly interest rate
 let n = loan.number_of_months ; // Number of payments
 let p = loan.loan_amount;
 
@@ -69,6 +75,14 @@ let factor = (1.0 + r).powf(n);
            (p * r* factor) / (factor - 1.0)
           
 }
+
+pub async fn total_principal_interest(&self) -> f32 {
+
+     let ans  = self.loans.clone();
+     let loan =ans[0].clone();
+     let total_due = self.monthly_payment().await * loan.number_of_months;
+     total_due
+     }
    
    
 pub async fn outstanding_balance(&self) -> f32 {
@@ -89,7 +103,8 @@ let loan =ans[0].clone();
 let mut schedule = Vec::new();
 let mut balance = loan.loan_amount;
 let monthly_payment = self.monthly_payment().await;
-let rate = loan.interest_rate / 12.0 / 100.0;
+let delta_interest_rate = change_in_interest_rates(loan.loan_amount, loan.interest_rate).await;
+let rate = delta_interest_rate.interest_rate / 12.0 / 100.0;
 
    
 for i in 0..loan.number_of_months  as u32 {
@@ -113,12 +128,17 @@ schedule
 }
 
 pub async fn complete_schedule(&self)-> Value {
-        
+let principal = self.loans[0].loan_amount;
+let monthly_payment  =self.monthly_payment().await;    
 let gen_schedule =self.generate_schedule().await;
 let total_gain =self.total_gain().await;
 let outstanding_gain  = self.outstanding_balance().await;
+let total_principal_interest = self.total_principal_interest().await;
 
 serde_json::json!({
+"principal":principal,
+"monthly_payment":monthly_payment,
+"total_principal_interest": total_principal_interest,
 "total_gain":total_gain,
 "outstanding_gain":outstanding_gain,
 "schedule":gen_schedule,

@@ -42,7 +42,6 @@ Router::new()
 
 .route("/", get(home_page))
 .route("/loans", get(avaliable_loans))
-
 .route("/find_loan_by_id/:product_id", get(find_loan_by_id))
 .route("/lenders", get(all_lenders))
 .route("/borrowers", get(all_borrowers))
