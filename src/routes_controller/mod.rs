@@ -52,7 +52,7 @@ Router::new()
 .route("/borrower_loan_amortization", post(borrower_loan_schedule))
 .route("/submit_loan", post(submit_loan))
 .route("/update_loan", put(update_loan))
-.route("/delete_loan", put(delete_loan))
+.route("/delete_loan/:product_id", delete(delete_loan))
 .layer(Extension(state))
   
 }
