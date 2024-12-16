@@ -4,7 +4,7 @@ use chrono::{NaiveDateTime,Duration}; // For date handling
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::sync::Arc;
-use crate::contract::change_in_interest_rates::change_in_interest_rates;
+
 
 #[derive(Deserialize,Serialize, Debug,Clone)]
 pub struct Payment {
@@ -59,8 +59,8 @@ pub async fn monthly_payment(&self) -> f32 {
 
 let ans  = self.loans.clone();
 let loan =ans[0].clone();
-let delta_interest_rate = change_in_interest_rates(loan.loan_amount, loan.interest_rate).await;
-let r = delta_interest_rate.interest_rate / 12.0 / 100.0; // Monthly interest rate
+
+let r = loan.interest_rate / 12.0 / 100.0; // Monthly interest rate
 let n = loan.number_of_months ; // Number of payments
 let p = loan.loan_amount;
 
@@ -103,8 +103,8 @@ let loan =ans[0].clone();
 let mut schedule = Vec::new();
 let mut balance = loan.loan_amount;
 let monthly_payment = self.monthly_payment().await;
-let delta_interest_rate = change_in_interest_rates(loan.loan_amount, loan.interest_rate).await;
-let rate = delta_interest_rate.interest_rate / 12.0 / 100.0;
+
+let rate = loan.interest_rate / 12.0 / 100.0;
 
    
 for i in 0..loan.number_of_months  as u32 {
