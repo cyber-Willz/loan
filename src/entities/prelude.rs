@@ -7,4 +7,5 @@ pub use super::lenders::Entity as Lenders;
 pub use super::loan_products::Entity as LoanProducts;
 pub use super::loan_requests::Entity as LoanRequests;
 pub use super::loan_transactions::Entity as LoanTransactions;
+pub use super::payment_details::Entity as PaymentDetails;
 pub use super::payments::Entity as Payments;

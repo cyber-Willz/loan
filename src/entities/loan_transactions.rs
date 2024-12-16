@@ -28,6 +28,8 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     LoanRequests,
+    #[sea_orm(has_many = "super::payment_details::Entity")]
+    PaymentDetails,
     #[sea_orm(has_many = "super::payments::Entity")]
     Payments,
 }
@@ -41,6 +43,12 @@ impl Related<super::borrower_payment_ledger::Entity> for Entity {
 impl Related<super::loan_requests::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::LoanRequests.def()
+    }
+}
+
+impl Related<super::payment_details::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PaymentDetails.def()
     }
 }
 

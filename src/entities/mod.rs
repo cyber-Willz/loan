@@ -9,5 +9,6 @@ pub mod lenders;
 pub mod loan_products;
 pub mod loan_requests;
 pub mod loan_transactions;
+pub mod payment_details;
 pub mod payments;
 pub mod sea_orm_active_enums;
