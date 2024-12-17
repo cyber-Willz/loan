@@ -27,7 +27,7 @@ pub struct PaymentDetails{
     }
 
 //Json<Value>
-pub async fn payment_details(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<PaymentDetails>)->Json<Value>{
+pub async fn submit_payment_details(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<PaymentDetails>)->Json<Value>{
 
     let state=state.db.clone();
     let db = &state as &DatabaseConnection;
