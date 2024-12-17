@@ -1,3 +1,4 @@
+
 pub async fn applied_fees(  original_loan_amount :f32,
     loan_amount :f32,
      number_of_months :f32,

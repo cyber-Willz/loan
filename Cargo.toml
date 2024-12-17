@@ -21,3 +21,4 @@ tower = { version = "0.5.1", features = ["full"] }
 # Cargo.toml
 futures = "0.3.31"
 sea-orm = { version = "1.1.2", features = [ "sqlx-mysql", "runtime-async-std-native-tls", "macros" ] }
+round = "0.1.2"

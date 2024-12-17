@@ -17,7 +17,11 @@ mod update_loan;
 mod find_loan_by_id;
 mod delete_loan;
 mod borrower_loan_schedule;
+mod payment_details;
+mod delete_payment_details;
 
+use delete_payment_details::delete_payment_details;
+use payment_details::payment_details;
 use borrower_loan_schedule::borrower_loan_schedule;
 use delete_loan::delete_loan;
 use find_loan_by_id::find_loan_by_id;
@@ -51,6 +55,8 @@ Router::new()
 .route("/lender_loan_amortization/:product_id", get(lender_loan_schedules))
 .route("/borrower_loan_amortization", post(borrower_loan_schedule))
 .route("/submit_loan", post(submit_loan))
+.route("/payment_details", post(payment_details))
+.route("/delete_payment_details/:id", delete(delete_payment_details))
 .route("/update_loan", put(update_loan))
 .route("/delete_loan/:product_id", delete(delete_loan))
 .layer(Extension(state))

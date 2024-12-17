@@ -15,11 +15,11 @@ pub struct Model {
     pub description: Option<String>,
     #[sea_orm(column_type = "Float")]
     pub gross_amount: f32,
-    #[sea_orm(column_type = "Float", nullable)]
-    pub service_fee_deducted: Option<f32>,
+    #[sea_orm(column_type = "Float")]
+    pub service_fee_deducted: f32,
     #[sea_orm(column_type = "Float")]
     pub net_amount: f32,
-    pub currency: Option<Currency>,
+    pub currency: Currency,
     pub created_at: Option<DateTime>,
 }
 
