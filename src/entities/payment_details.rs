@@ -11,20 +11,31 @@ pub struct Model {
     pub id: i32,
     pub payment_id: i32,
     pub transaction_id: i32,
+    pub product_id: i32,
     pub source_type: SourceType,
     pub description: Option<String>,
     #[sea_orm(column_type = "Float")]
-    pub gross_amount: f32,
+    pub gross_payment_amount: f32,
     #[sea_orm(column_type = "Float")]
     pub service_fee_deducted: f32,
     #[sea_orm(column_type = "Float")]
-    pub net_amount: f32,
+    pub net_payment_amount: f32,
+    #[sea_orm(column_type = "Float")]
+    pub net_savings: f32,
     pub currency: Currency,
     pub created_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::loan_products::Entity",
+        from = "Column::ProductId",
+        to = "super::loan_products::Column::ProductId",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    LoanProducts,
     #[sea_orm(
         belongs_to = "super::loan_transactions::Entity",
         from = "Column::TransactionId",
@@ -41,6 +52,12 @@ pub enum Relation {
         on_delete = "Cascade"
     )]
     Payments,
+}
+
+impl Related<super::loan_products::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::LoanProducts.def()
+    }
 }
 
 impl Related<super::loan_transactions::Entity> for Entity {

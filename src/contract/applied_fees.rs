@@ -1,6 +1,7 @@
 
 pub async fn applied_fees(  original_loan_amount :f32,
     loan_amount :f32,
+    loan_amount_service_fee :f32,
      number_of_months :f32,
      interest_rate :f32,
    )->LoanOutput{
@@ -27,13 +28,13 @@ pub async fn applied_fees(  original_loan_amount :f32,
     
     //Calculating Equated Monthly Installment(EMI)
     
-    let emi: f32 = loan_amount*r/(1.0-(r+1.0).powf(-n));
+    let emi: f32 =  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n));
     
     
 
         // total_amount = emi*n + base fee
         let total_amount =emi*n; 
-        let total_p_interest = emi*n-loan_amount;
+        let total_p_interest = emi*n- loan_amount_service_fee ;
 
     
   
@@ -68,7 +69,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
     
     //Calculating Equated Monthly Installment (EMI)
     
-    let emi:f32= loan_amount*r/(1.0-(r+1.0).powf(-n));
+    let emi:f32=  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n));
     
     
 
@@ -76,7 +77,7 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
            // total_amount = emi*n + base fee
            let total_amount =emi*n; 
-           let total_p_interest = emi*n-loan_amount;
+           let total_p_interest = emi*n- loan_amount_service_fee ;
    
        
      
@@ -112,12 +113,12 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    //Calculating Equated Monthly Installment (EMI)
    
-   let emi: f32 = loan_amount*r/(1.0-(r+1.0).powf(-n));
+   let emi: f32 =  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n));
    
    
           // total_amount = emi*n + base fee
           let total_amount =emi*n; 
-          let total_p_interest = emi*n-loan_amount;
+          let total_p_interest = emi*n-loan_amount_service_fee ;
   
       
     
@@ -156,11 +157,11 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
    
    //Calculating Equated Monthly Installment (EMI)
-   let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
+   let emi: f32=  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n)); 
 
              // total_amount = emi*n + base fee
              let total_amount =emi*n ; 
-             let total_p_interest = emi*n-loan_amount;
+             let total_p_interest = emi*n-loan_amount_service_fee ;
      
          
        
@@ -198,12 +199,12 @@ pub async fn applied_fees(  original_loan_amount :f32,
  
    //Calculating Equated Monthly Installment (EMI)
    
-   let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
+   let emi: f32=  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n)); 
 
 
                 // total_amount = emi*n + base fee
                 let total_amount =emi*n; 
-                let total_p_interest = emi*n-loan_amount;
+                let total_p_interest = emi*n-loan_amount_service_fee ;
         
             
           
@@ -241,12 +242,12 @@ pub async fn applied_fees(  original_loan_amount :f32,
    
    //Calculating Equated Monthly Installment (EMI)
    
-   let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
+   let emi: f32=  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n)); 
 
 
         // total_amount = emi*n + base fee
         let total_amount =emi*n ; 
-        let total_p_interest = emi*n-loan_amount;
+        let total_p_interest = emi*n-loan_amount_service_fee ;
          let number_of_months =n;
          let interest_rate =r_p;
          let monthly_payment =emi;
@@ -280,12 +281,12 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
     //Calculating Equated Monthly Installment (EMI)
     
-    let emi: f32= loan_amount*r/(1.0-(r+1.0).powf(-n)); 
+    let emi: f32=  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n)); 
 
 
             // total_amount = emi*n + base fee
             let total_amount =emi*n ; 
-            let total_p_interest = emi*n-loan_amount;
+            let total_p_interest = emi*n-loan_amount_service_fee ;
              let number_of_months =n;
              let interest_rate =r_p;
              let monthly_payment =emi;
@@ -322,12 +323,12 @@ pub async fn applied_fees(  original_loan_amount :f32,
 
   //Calculating Equated Monthly Installment (EMI)
   
-  let emi: f32 = loan_amount*r/(1.0-(r+1.0).powf(-n)); 
+  let emi: f32 =  loan_amount_service_fee *r/(1.0-(r+1.0).powf(-n)); 
 
 
           // total_amount = emi*n + base fee
           let total_amount =emi*n ; 
-          let total_p_interest = emi*n-loan_amount;
+          let total_p_interest = emi*n-loan_amount_service_fee ;
            let number_of_months =n;
            let interest_rate =r_p;
            let monthly_payment =emi;

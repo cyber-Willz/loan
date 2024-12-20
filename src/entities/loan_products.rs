@@ -14,6 +14,8 @@ pub struct Model {
     #[sea_orm(column_type = "Float")]
     pub loan_amount: f32,
     #[sea_orm(column_type = "Float")]
+    pub loan_amount_service_fee: f32,
+    #[sea_orm(column_type = "Float")]
     pub number_of_months: f32,
     #[sea_orm(column_type = "Float")]
     pub interest_rate: f32,
@@ -43,6 +45,8 @@ pub enum Relation {
     Lenders,
     #[sea_orm(has_many = "super::loan_requests::Entity")]
     LoanRequests,
+    #[sea_orm(has_many = "super::payment_details::Entity")]
+    PaymentDetails,
 }
 
 impl Related<super::borrower_payment_ledger::Entity> for Entity {
@@ -66,6 +70,12 @@ impl Related<super::lenders::Entity> for Entity {
 impl Related<super::loan_requests::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::LoanRequests.def()
+    }
+}
+
+impl Related<super::payment_details::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::PaymentDetails.def()
     }
 }
 

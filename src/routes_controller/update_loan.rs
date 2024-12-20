@@ -7,6 +7,7 @@ use serde_json::Value;
 
 use crate::entities::loan_products;
 use crate::contract::applied_fees::applied_fees;
+use crate::contract::change_in_loan_amount_on_service_fee::change_in_loan_amount_on_service_fee;
 use crate::State;
 use sea_orm::*;
 use axum:: extract;
@@ -32,9 +33,10 @@ pub async fn update_loan(Extension(state): Extension<Arc<State>>,extract::Json(p
     let state=state.db.clone();
     let db = &state as &DatabaseConnection;
 
-   let output_loan =applied_fees( payload.original_loan_amount ,payload.loan_amount, payload.number_of_months, payload.interest_rate).await;
-   
-
+let loan_amount_service_fee =change_in_loan_amount_on_service_fee(payload.loan_amount.clone()).await;
+let loan_service_fee =loan_amount_service_fee.delta_loan_amount+payload.loan_amount;
+let output_loan =applied_fees( payload.original_loan_amount ,payload.loan_amount,  loan_service_fee,payload.number_of_months, payload.interest_rate).await;
+ 
 
 // Into ActiveModel
 
@@ -46,6 +48,7 @@ pub async fn update_loan(Extension(state): Extension<Arc<State>>,extract::Json(p
     original_loan_amount:ActiveValue::Set(output_loan.original_loan_amount),
     loan_amount:ActiveValue::Set(output_loan.loan_amount),
     number_of_months:ActiveValue::Set(output_loan.number_of_months),
+    loan_amount_service_fee:ActiveValue::Set(loan_service_fee),
      interest_rate:ActiveValue::Set(output_loan.interest_rate),
      monthly_payment:ActiveValue::Set(output_loan.monthly_payment),
      total_interest:ActiveValue::Set(output_loan.total_interest),
