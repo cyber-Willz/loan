@@ -1,5 +1,5 @@
 
-use axum::extract::{Json,Extension};
+use axum::{extract::{Json,Extension},http:: StatusCode};
 use sea_orm::EntityTrait;
 use sea_orm::DatabaseConnection;  
 use serde_json::Value;
@@ -12,36 +12,272 @@ use crate::contract::change_in_loan_amount_on_service_fee::change_in_loan_amount
 use crate::State;
 use sea_orm::*;
 use axum:: extract;
-use crate::entities::prelude::LoanTransactions;
+use crate::entities::prelude::{LoanTransactions,LoanProducts,BorrowerPaymentLedger};
+use crate::loan_products::Model;
 
-
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize,Serialize};
 
 use::std::sync::Arc;
+
+use crate::contract::borrower_schedule::{Payment};
+use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
 
 #[derive(Deserialize,Debug)]
 pub struct PaymentDetails{
     pub payment_id: i32,
     pub product_id:i32,
+    pub borrower_id:i32,
     pub transaction_id: i32,    
     pub source_type : SourceType,
     pub description:String,                   
     pub gross_amount :f32,                        
     pub currency :Currency,  
     }
+    #[derive(Deserialize,Serialize, Debug,Clone)]
+    pub struct Loan {
+    pub  product_id: i32,
+    pub  product_name: String,
+    pub  loan_amount: f32,
+    pub  interest_rate: f32,
+    pub  number_of_months: f32,
+    pub  monthly_payment: f32,
+    pub  total_interest : f32,
+    pub total_principal_interest:f32,
+    pub  payments: Vec<Payment>,
 
+  
+    }
+
+    pub struct Ledger {
+
+        pub    loans: Arc<Vec<Loan>>,
+              
+        }
+           
+        impl Ledger {
+        
+        pub  async  fn new(loans: Arc<Vec<Loan>>) -> Self {
+        
+        Self {
+             loans: loans,
+                       
+             }
+        }
+        
+        
+        pub async fn loan_principal(&self) -> f32 {
+        
+            let ans  = self.loans.clone();
+            let loan =ans[0].clone();
+            let new = loan.loan_amount;
+            new
+            
+            }
+        
+        pub async fn total_interest(&self) -> f32 {
+        
+                let ans  = self.loans.clone();
+                let loan =ans[0].clone();
+                let new = loan.total_interest;
+                new
+                
+                }    
+        
+        pub async fn total_principal_interest(&self) -> f32 {
+        
+            let ans  = self.loans.clone();
+            let loan =ans[0].clone();
+            let new = loan.total_principal_interest;
+            new
+            
+            }
+            
+           
+        pub async fn total_paid(&self) -> f32 {
+        
+        let ans  = self.loans.clone();
+        let loan =ans[0].clone();
+        let new  = loan.payments.iter().map(|p| p.payment_amount).sum();
+        new
+        
+        }
+           
+           
+        pub async fn outstanding_balance(&self) -> f32 {
+        
+        let ans  = self.loans.clone();
+        let loan =ans[0].clone();
+        let total_paid = self.total_paid().await;
+        let total_due = loan.monthly_payment * loan.number_of_months;
+        total_due - total_paid
+        
+        }
+
+    pub async fn payment_detail_method(&self) -> () {
+        let ans  = self.loans.clone();
+        let loan =ans[0].clone();
+        let ob = self.outstanding_balance().await;
+        let service_fee = change_in_loan_amount_on_service_fee(loan.loan_amount).await;
+
+        if ob > 0.0 {
+         loan.loan_amount+service_fee.delta_loan_amount;
+
+
+        }
+            
+            }
+           
+        
+        
+        pub async fn complete_schedule(&self)-> Value {
+        let principal=self. loan_principal().await;
+        let total_interest=self.total_interest().await;
+        let total_principal_interest =self.total_principal_interest().await;
+        // let gen_schedule =self.generate_schedule().await;
+        // let total_paid =self.total_paid().await;
+        // let outstanding_debt  = self.outstanding_balance().await;
+        
+        serde_json::json!({
+        "principal":principal,
+        "total_interest":total_interest,
+        "total_principal_interest" : total_principal_interest,
+        // "total_paid":total_paid,
+        // "outstanding_debt":outstanding_debt,
+        // "schedule":gen_schedule,
+                  
+        })}
+            
+            
+        }
+               
 
 //Json<Value>
-pub async fn submit_payment_details(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<PaymentDetails>)->(){
+pub async fn submit_payment_details(Extension(state): Extension<Arc<State>>,extract::Json(payload):extract::Json<PaymentDetails>)->Json<Value>{
 
 let state=state.db.clone();
 let db = &state as &DatabaseConnection;
 
 
+let mut payments=Vec::new();
+
+
+let borrower_loan_ledger=BorrowerPaymentLedger::find()
+.all(db)
+.await.map_err(|err|{StatusCode::INTERNAL_SERVER_ERROR});
 
 
 
+let d = NaiveDate::from_ymd_opt(2011, 09, 11).unwrap();
+let t: NaiveTime = NaiveTime::from_hms_milli_opt(00, 00, 00, 00).unwrap();
+let err_datetime = NaiveDateTime::new(d, t);
+
+if let Ok(loan_ledger) =borrower_loan_ledger{
  
+let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b| 
+
+    {
+
+        if b.borrower_id ==payload.borrower_id {
+
+            Payment {
+
+                ledger_id: b.ledger_id,    
+                payment_date: b.payment_date,
+                payment_amount :b.payment_amount
+                }
+                    
+        }
+        else{
+
+            Payment {
+                ledger_id: b.ledger_id,    
+                payment_date: err_datetime,
+                payment_amount :0.0
+                }
+        }
+            
+            
+    }).collect();
+
+for elem in loan_ledger_payments.into_iter() {
+payments.push(elem)
+
+
+}
+}
+
+
+let mut res_loan_product: Vec<Model>  =vec![];
+let loan_product= LoanProducts::find_by_id(payload.product_id).one(db).await.map_err(|_err|{
+    StatusCode::INTERNAL_SERVER_ERROR
+  });
+ 
+let ans  = 
+if let Ok(product )=loan_product{
+if let Some(product)=product
+{
+    res_loan_product.push(product);
+
+    let  loan_product_info: Vec<Loan> = res_loan_product.into_iter().map(|b| 
+
+        {
+            Loan {
+       
+                product_id: b.product_id,
+                product_name: b.product_name,
+                loan_amount: b.loan_amount,
+                interest_rate: b.interest_rate,
+                number_of_months: b.number_of_months,
+                monthly_payment: b.monthly_payment,
+                total_interest : b.total_interest,
+                total_principal_interest: b.total_principal_interest,
+                payments: payments.clone()
+              
+    
+                }
+    }).collect();
+    
+    let new_loan_info: Arc<Vec<Loan>> =Arc::new(loan_product_info);
+    
+    let ledger  =Ledger::new(new_loan_info);
+    
+    let  gen =ledger.await.outstanding_balance().await;
+
+
+
+
+let res =serde_json::json!({
+        "500":"Incomplete"});
+
+  Json(res)
+
+}
+else {
+  
+let res =serde_json::json!({
+"500":"Not Found"});
+
+Json(res)
+
+}
+}else if let Err(res)=loan_product{
+
+let res =serde_json::json!({
+"500":"INTERNAL_SERVER_ERROR"});
+
+Json(res)
+
+}
+else{
+
+let err_res =serde_json::json!({
+"401":"UNAUTHORIZED"});
+
+Json(err_res)
+
+  };
+ 
+ ans
 
 
 
@@ -49,6 +285,7 @@ let db = &state as &DatabaseConnection;
 // let insert_loan =payment_details::ActiveModel {
 
 //     payment_id: ActiveValue::Set(payload.payment_id),
+//     product_id:ActiveValue::Set(payload.product_id),
 //     transaction_id:ActiveValue::Set(payload.transaction_id),
 //     source_type:ActiveValue::Set(payload.source_type.clone()),
 //     description:ActiveValue::Set(Some(payload.description.to_string())),
