@@ -22,7 +22,7 @@ use::std::sync::Arc;
 use crate::contract::borrower_schedule::{Payment};
 use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
 
-#[derive(Deserialize,Debug)]
+#[derive(Deserialize,Debug,Clone)]
 pub struct PaymentDetails{
     pub payment_id: i32,
     pub product_id:i32,
@@ -113,19 +113,38 @@ pub struct PaymentDetails{
         
         }
 
-    pub async fn payment_detail_method(&self) -> () {
+    pub async fn payment_detail_method(&self,payment_details:PaymentDetails) -> (f32,f32,f32) {
         let ans  = self.loans.clone();
         let loan =ans[0].clone();
-        let ob = self.outstanding_balance().await;
+        let tp = self.total_paid().await;
         let service_fee = change_in_loan_amount_on_service_fee(loan.loan_amount).await;
+            //Calculating Equated Monthly Installment(EMI)
+    
+    let emi: f32 =  loan.loan_amount *loan.interest_rate/(1.0-(loan.interest_rate+1.0).powf(-loan.number_of_months));
+    // let total_amount =emi*loan.number_of_months; 
+    let total_p_interest = emi*loan.number_of_months-loan.loan_amount;
+        let mut service_fee_deducted  = 0.0;
+        let mut net_amount=0.0;
+        let mut net_savings=0.0;
+        if tp <= loan.total_principal_interest {
+         if service_fee_deducted <= service_fee.delta_loan_amount+loan.loan_amount {
+            service_fee_deducted += payment_details.gross_amount*3.0/100.0;
+       }
+       else if net_amount<=total_p_interest{
+        net_amount+= payment_details.gross_amount-payment_details.gross_amount*3.0/100.0;
 
-        if ob > 0.0 {
-         loan.loan_amount+service_fee.delta_loan_amount;
-
-
-        }
             
             }
+            else{
+                net_savings+=payment_details.gross_amount;
+            }
+       
+(service_fee_deducted,net_amount,net_savings)
+
+        }
+    else{
+        (0.0,0.0,0.0)
+    }}
            
         
         
@@ -241,13 +260,32 @@ if let Some(product)=product
     
     let ledger  =Ledger::new(new_loan_info);
     
-    let  gen =ledger.await.outstanding_balance().await;
+    let  gen =ledger.await.payment_detail_method(payload.clone()).await;
 
+let insert_loan =payment_details::ActiveModel {
+
+    payment_id: ActiveValue::Set(payload.payment_id),
+    product_id:ActiveValue::Set(payload.product_id),
+    transaction_id:ActiveValue::Set(payload.transaction_id),
+    source_type:ActiveValue::Set(payload.source_type.clone()),
+    description:ActiveValue::Set(Some(payload.description.to_string())),
+    gross_payment_amount:ActiveValue::Set(payload.gross_amount),
+    service_fee_deducted:ActiveValue::Set(gen.0),
+    net_payment_amount:ActiveValue::Set(gen.1),
+    net_savings :ActiveValue::Set(gen.2),
+    currency :ActiveValue::Set(payload.currency),
+   
+    ..Default::default() // all other attributes are `NotSet`
+};
+
+
+
+let res = payment_details::Entity::insert(insert_loan).exec(db).await.unwrap();
 
 
 
 let res =serde_json::json!({
-        "500":"Incomplete"});
+        "Insert":"Was successful"});
 
   Json(res)
 
@@ -282,25 +320,7 @@ Json(err_res)
 
 
 
-// let insert_loan =payment_details::ActiveModel {
 
-//     payment_id: ActiveValue::Set(payload.payment_id),
-//     product_id:ActiveValue::Set(payload.product_id),
-//     transaction_id:ActiveValue::Set(payload.transaction_id),
-//     source_type:ActiveValue::Set(payload.source_type.clone()),
-//     description:ActiveValue::Set(Some(payload.description.to_string())),
-//     gross_payment_amount:ActiveValue::Set(payload.gross_amount),
-//     service_fee_deducted:ActiveValue::Set(active_service_fee_deducted),
-//     net_payment_amount:ActiveValue::Set(net_amount),
-//     // net_savings :ActiveValue::Set(()),
-//     currency :ActiveValue::Set(payload.currency.clone()),
-   
-//     ..Default::default() // all other attributes are `NotSet`
-// };
-
-
-
-// let res = payment_details::Entity::insert(insert_loan).exec(db).await.unwrap();
 
 
 
