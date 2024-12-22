@@ -127,14 +127,13 @@ pub struct PaymentDetails{
         let mut net_amount=0.0;
         let mut net_savings=0.0;
         if tp <= loan.total_principal_interest {
-         if service_fee_deducted <= service_fee.delta_loan_amount+loan.loan_amount {
+        if service_fee_deducted <= service_fee.delta_loan_amount {
             service_fee_deducted += payment_details.gross_amount*3.0/100.0;
        }
-       else if net_amount<=total_p_interest{
+       if net_amount<=total_p_interest{
         net_amount+= payment_details.gross_amount-payment_details.gross_amount*3.0/100.0;
 
-            
-            }
+    }
             else{
                 net_savings+=payment_details.gross_amount;
             }
@@ -146,27 +145,7 @@ pub struct PaymentDetails{
         (0.0,0.0,0.0)
     }}
            
-        
-        
-        pub async fn complete_schedule(&self)-> Value {
-        let principal=self. loan_principal().await;
-        let total_interest=self.total_interest().await;
-        let total_principal_interest =self.total_principal_interest().await;
-        // let gen_schedule =self.generate_schedule().await;
-        // let total_paid =self.total_paid().await;
-        // let outstanding_debt  = self.outstanding_balance().await;
-        
-        serde_json::json!({
-        "principal":principal,
-        "total_interest":total_interest,
-        "total_principal_interest" : total_principal_interest,
-        // "total_paid":total_paid,
-        // "outstanding_debt":outstanding_debt,
-        // "schedule":gen_schedule,
                   
-        })}
-            
-            
         }
                
 
@@ -196,7 +175,7 @@ let  loan_ledger_payments: Vec<Payment> = loan_ledger.into_iter().map(|b|
 
     {
 
-        if b.borrower_id ==payload.borrower_id {
+        if b.borrower_id == payload.borrower_id {
 
             Payment {
 
@@ -266,6 +245,7 @@ let insert_loan =payment_details::ActiveModel {
 
     payment_id: ActiveValue::Set(payload.payment_id),
     product_id:ActiveValue::Set(payload.product_id),
+    borrower_id:ActiveValue::Set(payload.borrower_id),
     transaction_id:ActiveValue::Set(payload.transaction_id),
     source_type:ActiveValue::Set(payload.source_type.clone()),
     description:ActiveValue::Set(Some(payload.description.to_string())),
