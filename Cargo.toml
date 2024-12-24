@@ -22,3 +22,4 @@ tower = { version = "0.5.2", features = ["full"] }
 futures = "0.3.31"
 sea-orm = { version = "1.1.2", features = [ "sqlx-mysql", "runtime-async-std-native-tls", "macros" ] }
 round = "0.1.2"
+mongodb = "3.1.1"

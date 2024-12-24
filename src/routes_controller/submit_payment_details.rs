@@ -9,6 +9,7 @@ use crate::entities::payment_details;
 use crate::entities::sea_orm_active_enums::{SourceType,Currency};
 use crate::contract::change_in_loan_amount_on_service_fee::change_in_loan_amount_on_service_fee;
 
+
 use crate::State;
 use sea_orm::*;
 use axum:: extract;
@@ -21,6 +22,11 @@ use::std::sync::Arc;
 
 use crate::contract::borrower_schedule::{Payment};
 use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
+
+
+
+
+
 
 #[derive(Deserialize,Debug,Clone)]
 pub struct PaymentDetails{
@@ -120,33 +126,51 @@ pub struct PaymentDetails{
         let service_fee = change_in_loan_amount_on_service_fee(loan.loan_amount).await;
             //Calculating Equated Monthly Installment(EMI)
     
-    let emi: f32 =  loan.loan_amount *loan.interest_rate/(1.0-(loan.interest_rate+1.0).powf(-loan.number_of_months));
-    // let total_amount =emi*loan.number_of_months; 
-    let total_p_interest = emi*loan.number_of_months-loan.loan_amount;
-        let mut service_fee_deducted  = 0.0;
+    let r:f32 = (loan.interest_rate)/(12.0*100.0);
+    let emi: f32 =  loan.loan_amount *r/(1.0-(r+1.0).powf(-loan.number_of_months));
+    let total_amount = emi*loan.number_of_months ;
+    
+ 
+
         let mut net_amount=0.0;
         let mut net_savings=0.0;
-        if tp <= loan.total_principal_interest {
-        if service_fee_deducted <= service_fee.delta_loan_amount {
-            service_fee_deducted += payment_details.gross_amount*3.0/100.0;
+       let mut service_fee_value = 0.0;
+
+        // let mut service_fee_deducted  = vec![];
+ 
+
+
+        if  service_fee_value <= service_fee.delta_loan_amount {
+            println!("{:?}",service_fee.delta_loan_amount);
+            println!("{:?}",service_fee_value);
+          service_fee_value +=  payment_details.gross_amount*3.0/100.0;
+       
+
+    
+        
+
        }
-       if net_amount<=total_p_interest{
-        net_amount+= payment_details.gross_amount-payment_details.gross_amount*3.0/100.0;
+       if net_amount <= total_amount{
+          println!("{:?}",total_amount);
+          println!("{:?}",net_amount);
+        net_amount += payment_details.gross_amount*97.0/100.0;
 
     }
             else{
                 net_savings+=payment_details.gross_amount;
             }
+
+           
        
-(service_fee_deducted,net_amount,net_savings)
+( service_fee_value ,net_amount,net_savings)
 
         }
-    else{
-        (0.0,0.0,0.0)
-    }}
+
+
+}
            
                   
-        }
+   
                
 
 //Json<Value>
@@ -264,6 +288,19 @@ let res = payment_details::Entity::insert(insert_loan).exec(db).await.unwrap();
 
 
 
+// Json( serde_json::json!({
+//                    "payment_id":payload.payment_id,
+//                    "transaction_id":payload.transaction_id,
+//                    "source_type":payload.source_type,
+//                    "description":payload.description,
+//                    "gross_amount":payload.gross_amount,
+//                    "service_fee_deducted":active_service_fee_deducted,
+//                    "net_amount":net_amount,
+//                    "currency":payload.currency,
+//                 }))
+
+
+
 let res =serde_json::json!({
         "Insert":"Was successful"});
 
@@ -298,22 +335,6 @@ Json(err_res)
  ans
 
 
-
-
-
-
-
-
-// Json( serde_json::json!({
-//                    "payment_id":payload.payment_id,
-//                    "transaction_id":payload.transaction_id,
-//                    "source_type":payload.source_type,
-//                    "description":payload.description,
-//                    "gross_amount":payload.gross_amount,
-//                    "service_fee_deducted":active_service_fee_deducted,
-//                    "net_amount":net_amount,
-//                    "currency":payload.currency,
-//                 }))
  
 
 }
