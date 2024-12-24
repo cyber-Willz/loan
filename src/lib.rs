@@ -1,4 +1,4 @@
-
+#[feature(sort_floats)]
 mod routes_controller;
 use routes_controller::routes;
 use dotenv::dotenv;

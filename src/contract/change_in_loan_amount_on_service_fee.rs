@@ -10,7 +10,7 @@ loan_amount :f32,
 
 if loan_amount>=0.1 && loan_amount<=50.99{
 
-let new_loan_amount  = 5.0/100.0*loan_amount;
+let new_loan_amount  = 6.0/100.0*loan_amount;
 
 let delta_loan_amount :f32 = new_loan_amount;
     
@@ -23,7 +23,7 @@ return loan
 else if loan_amount>=51.0 && loan_amount<=100.99 {
 
              
-    let new_loan_amount  = 5.0/100.0*loan_amount;
+    let new_loan_amount  = 6.0/100.0*loan_amount;
     
     let delta_loan_amount :f32 = new_loan_amount;       
 
@@ -133,7 +133,7 @@ return loan
 else if  loan_amount>3000.99 && loan_amount<=9000.99  {
 
 
-    let new_loan_amount  = 5.5/100.0*loan_amount;
+    let new_loan_amount  = 6.0/100.0*loan_amount;
 
     let delta_loan_amount :f32 = new_loan_amount; 
     

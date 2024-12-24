@@ -23,7 +23,37 @@ use::std::sync::Arc;
 use crate::contract::borrower_schedule::{Payment};
 use chrono::{NaiveDateTime,NaiveTime,NaiveDate};
 
+use redis::{Client, Commands};
+use std::collections::HashMap;
+use rand::{thread_rng, Rng};
+use rand::distributions::Alphanumeric;
 
+pub async fn set_service_fee(service_fee_value:f32) -> redis::RedisResult<()> {
+
+    let rand_string: String = thread_rng()
+    .sample_iter(&Alphanumeric)
+    .take(6)
+    .map(char::from)
+    .collect();
+
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+    let _: () = con.hset("service_fee:123", rand_string, service_fee_value).unwrap();
+
+    /* do something here */
+
+    Ok(())
+}
+
+pub async fn get_service_fee() -> redis::RedisResult<HashMap<String,f32>> {
+    let client = redis::Client::open("redis://127.0.0.1/")?;
+    let mut con = client.get_connection()?;
+    let map: HashMap<String, f32>= con.hgetall("service_fee:123").unwrap();
+
+    /* do something here */
+
+    Ok(map)
+}
 
 
 
@@ -138,16 +168,32 @@ pub struct PaymentDetails{
 
         // let mut service_fee_deducted  = vec![];
  
+       let service_fee_map= get_service_fee().await.unwrap();
+       let mut vec: Vec<f32> = service_fee_map.clone().into_values().collect();
+      
+   
+       let mut sum_of_service_fees = vec.iter().sum::<f32>();
+
+      
 
 
-        if  service_fee_value <= service_fee.delta_loan_amount {
-            println!("{:?}",service_fee.delta_loan_amount);
-            println!("{:?}",service_fee_value);
+
+        if  sum_of_service_fees < service_fee.delta_loan_amount {
+         
           service_fee_value +=  payment_details.gross_amount*3.0/100.0;
+          let _= set_service_fee(service_fee_value).await;
        
-
+       
+       }
+       else{
+    let mut new_vec = vec;
+    let idx = new_vec.len()-1;
+    new_vec.remove(idx);
+         
     
-        
+        let new_temp = service_fee.delta_loan_amount-new_vec.iter().sum::<f32>();
+        sum_of_service_fees =new_temp;
+
 
        }
        if net_amount <= total_amount{
@@ -157,12 +203,12 @@ pub struct PaymentDetails{
 
     }
             else{
-                net_savings+=payment_details.gross_amount;
+                net_savings += payment_details.gross_amount;
             }
 
            
        
-( service_fee_value ,net_amount,net_savings)
+( sum_of_service_fees,net_amount,net_savings)
 
         }
 
